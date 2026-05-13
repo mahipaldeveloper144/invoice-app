@@ -1,0 +1,48 @@
+{
+  "name": "invoice-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@swc/helpers": "^0.5.21",
+    "axios": "^1.16.0",
+    "bcryptjs": "^3.0.3",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "html2canvas": "^1.4.1",
+    "jose": "^6.2.3",
+    "jsonwebtoken": "^9.0.3",
+    "jspdf": "^4.2.1",
+    "lucide-react": "^1.14.0",
+    "mongodb": "^7.2.0",
+    "mongoose": "^9.6.1",
+    "next": "16.2.4",
+    "qrcode.react": "^4.2.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-hot-toast": "^2.6.0",
+    "react-to-print": "^3.3.0",
+    "recharts": "^3.8.1",
+    "tailwind-merge": "^3.5.0",
+    "to-words": "^5.5.0",
+    "zod": "^4.4.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^20.19.39",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
