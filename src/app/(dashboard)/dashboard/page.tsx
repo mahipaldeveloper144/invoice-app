@@ -107,12 +107,19 @@ export default function DashboardPage() {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                   <XAxis 
-                    dataKey="shortDate" 
+                    dataKey="date" 
                     axisLine={false} 
                     tickLine={false} 
                     tick={{ fontSize: 12, fill: '#6b7280' }} 
                     dy={10}
                     minTickGap={30}
+                    tickFormatter={(value) => {
+                      const parts = value.split(' ');
+                      if (parts.length === 3) {
+                        return `${parts[0]} ${parts[2]}`;
+                      }
+                      return value;
+                    }}
                   />
                   <YAxis 
                     axisLine={false} 
@@ -121,7 +128,9 @@ export default function DashboardPage() {
                     tickFormatter={(value) => `₹${value}`}
                   />
                   <Tooltip 
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', color: '#111827' }}
+                    labelStyle={{ color: '#111827', fontWeight: 'bold', marginBottom: '4px' }}
+                    itemStyle={{ color: '#8b5cf6', fontWeight: '500' }}
                     formatter={(value: any) => [`₹${value}`, 'Revenue']}
                     labelFormatter={(label, payload) => {
                       if (payload && payload.length > 0 && payload[0].payload) {
@@ -139,11 +148,17 @@ export default function DashboardPage() {
                     fill="url(#colorAmount)" 
                   />
                   <Brush 
-                    dataKey="shortDate" 
+                    dataKey="date" 
                     height={30} 
                     stroke="#8b5cf6"
                     startIndex={stats?.chartData ? Math.max(0, stats.chartData.length - 30) : 0}
-                    tickFormatter={() => ''}
+                    tickFormatter={(value) => {
+                      const parts = value.split(' ');
+                      if (parts.length === 3) {
+                        return `${parts[0]} ${parts[2]}`;
+                      }
+                      return value;
+                    }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
