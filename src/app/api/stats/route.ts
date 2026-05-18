@@ -15,7 +15,13 @@ export async function GET() {
 
     const totalCustomers = await Customer.countDocuments({ userId: user.id });
     const totalProducts = await Product.countDocuments({ userId: user.id });
-    const totalInvoices = await Invoice.countDocuments({ userId: user.id });
+    
+    const invoices = await Invoice.find({ userId: user.id });
+    const totalInvoices = invoices.length;
+
+    const totalRevenue = invoices.reduce((sum, inv) => sum + (inv.total || 0), 0);
+    const paidRevenue = invoices.filter(inv => inv.status === 'Paid').reduce((sum, inv) => sum + (inv.total || 0), 0);
+    const unpaidRevenue = invoices.filter(inv => inv.status === 'Unpaid').reduce((sum, inv) => sum + (inv.total || 0), 0);
 
     // Calculate revenue for last 7 days
     const last7Days = Array.from({ length: 7 }, (_, i) => {
@@ -26,8 +32,8 @@ export async function GET() {
 
     const chartData = last7Days.map(day => {
       const dayTotal = invoices
-        .filter(inv => new Date(inv.date).toISOString().split('T')[0] === day)
-        .reduce((sum, inv) => sum + inv.total, 0);
+        .filter(inv => new Date(inv.date || new Date()).toISOString().split('T')[0] === day)
+        .reduce((sum, inv) => sum + (inv.total || 0), 0);
       return {
         date: format(new Date(day), 'MMM dd'),
         amount: dayTotal
