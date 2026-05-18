@@ -23,20 +23,24 @@ export async function GET() {
     const paidRevenue = invoices.filter(inv => inv.status === 'Paid').reduce((sum, inv) => sum + (inv.total || 0), 0);
     const unpaidRevenue = invoices.filter(inv => inv.status === 'Unpaid').reduce((sum, inv) => sum + (inv.total || 0), 0);
 
-    // Calculate revenue for last 7 days
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
+    // Calculate revenue for last 365 days
+    const last365Days = Array.from({ length: 365 }, (_, i) => {
       const d = new Date();
       d.setDate(d.getDate() - i);
       return d.toISOString().split('T')[0];
     }).reverse();
 
-    const chartData = last7Days.map(day => {
-      const dayTotal = invoices
-        .filter(inv => new Date(inv.date || new Date()).toISOString().split('T')[0] === day)
-        .reduce((sum, inv) => sum + (inv.total || 0), 0);
+    const revenueByDate: Record<string, number> = {};
+    invoices.forEach(inv => {
+      const dateStr = new Date(inv.date || new Date()).toISOString().split('T')[0];
+      revenueByDate[dateStr] = (revenueByDate[dateStr] || 0) + (inv.total || 0);
+    });
+
+    const chartData = last365Days.map(day => {
       return {
-        date: format(new Date(day), 'MMM dd'),
-        amount: dayTotal
+        date: format(new Date(day), 'MMM dd, yyyy'),
+        shortDate: format(new Date(day), 'MMM dd'),
+        amount: revenueByDate[day] || 0
       };
     });
 

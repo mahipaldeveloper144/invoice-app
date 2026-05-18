@@ -21,7 +21,8 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  ResponsiveContainer 
+  ResponsiveContainer,
+  Brush
 } from 'recharts';
 
 export default function DashboardPage() {
@@ -106,11 +107,12 @@ export default function DashboardPage() {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                   <XAxis 
-                    dataKey="date" 
+                    dataKey="shortDate" 
                     axisLine={false} 
                     tickLine={false} 
                     tick={{ fontSize: 12, fill: '#6b7280' }} 
                     dy={10}
+                    minTickGap={30}
                   />
                   <YAxis 
                     axisLine={false} 
@@ -120,7 +122,13 @@ export default function DashboardPage() {
                   />
                   <Tooltip 
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                    formatter={(value) => [`₹${value}`, 'Revenue']}
+                    formatter={(value: any) => [`₹${value}`, 'Revenue']}
+                    labelFormatter={(label, payload) => {
+                      if (payload && payload.length > 0 && payload[0].payload) {
+                        return payload[0].payload.date;
+                      }
+                      return label;
+                    }}
                   />
                   <Area 
                     type="monotone" 
@@ -129,6 +137,13 @@ export default function DashboardPage() {
                     strokeWidth={3}
                     fillOpacity={1} 
                     fill="url(#colorAmount)" 
+                  />
+                  <Brush 
+                    dataKey="shortDate" 
+                    height={30} 
+                    stroke="#8b5cf6"
+                    startIndex={stats?.chartData ? Math.max(0, stats.chartData.length - 30) : 0}
+                    tickFormatter={() => ''}
                   />
                 </AreaChart>
               </ResponsiveContainer>
