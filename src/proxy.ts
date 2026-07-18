@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/request';
+import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const secret = new TextEncoder().encode(JWT_SECRET);
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
   const { pathname } = request.nextUrl;
 
@@ -19,7 +19,7 @@ export async function middleware(request: NextRequest) {
       decodedToken = payload;
     } catch (error) {
       // Invalid token
-      console.log('Middleware: Invalid token');
+      console.log('Proxy: Invalid token');
     }
   }
 
