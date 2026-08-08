@@ -9,8 +9,10 @@ export async function proxy(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
   const { pathname } = request.nextUrl;
 
-  // Define public paths
-  const isPublicPath = pathname === '/login' || pathname === '/register';
+  // Allow API routes to be handled by their respective API route handlers
+  if (pathname.startsWith('/api')) {
+    return NextResponse.next();
+  }
 
   let decodedToken = null;
   if (token) {
@@ -18,25 +20,23 @@ export async function proxy(request: NextRequest) {
       const { payload } = await jwtVerify(token, secret);
       decodedToken = payload;
     } catch (error) {
-      // Invalid token
       console.log('Proxy: Invalid token');
     }
   }
 
-  // If public path and HAS valid token, redirect to dashboard
-  if (isPublicPath && decodedToken) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  const isPublicPath = pathname === '/login' || pathname === '/register';
+
+  // If logged in: redirect root (/), /login, and /register to /dashboard
+  if (decodedToken) {
+    if (isPublicPath || pathname === '/') {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    return NextResponse.next();
   }
 
-  // If NOT public path and NO valid token, redirect to login
-  if (!isPublicPath && !decodedToken && pathname !== '/') {
-    const protectedPaths = ['/dashboard', '/customers', '/products', '/invoices', '/api'];
-    if (protectedPaths.some(p => pathname.startsWith(p))) {
-      // Allow public API routes if any (none currently identified)
-      if (pathname.startsWith('/api/auth')) return NextResponse.next();
-      
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
+  // If not logged in: allow /login and /register, redirect everything else to /login
+  if (!isPublicPath) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   return NextResponse.next();
@@ -44,12 +44,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/',
-    '/login',
-    '/register',
-    '/dashboard/:path*',
-    '/customers/:path*',
-    '/products/:path*',
-    '/invoices/:path*',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
   ],
 };
