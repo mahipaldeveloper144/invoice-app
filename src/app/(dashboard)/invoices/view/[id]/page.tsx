@@ -50,6 +50,7 @@ export default function ViewInvoicePage() {
   });
 
   useEffect(() => {
+    if (!id) return;
     const fetchData = async () => {
       try {
         const [invRes, setRes] = await Promise.all([
@@ -66,7 +67,7 @@ export default function ViewInvoicePage() {
       }
     };
     fetchData();
-  }, [id]);
+  }, [id, router]);
 
   const handlePrint = useReactToPrint({
     contentRef: componentRef,

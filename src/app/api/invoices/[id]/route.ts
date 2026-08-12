@@ -2,12 +2,17 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import Invoice from '@/models/Invoice';
 import { getUser } from '@/lib/auth';
+import mongoose from 'mongoose';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const user: any = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
+    }
 
     await dbConnect();
     const invoice = await Invoice.findOne({ _id: id, userId: user.id }).populate('customerId');
@@ -25,6 +30,10 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const user: any = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
+    }
+
     await dbConnect();
     const invoice = await Invoice.findOneAndDelete({ _id: id, userId: user.id });
     if (!invoice) return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
@@ -39,6 +48,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const { id } = await params;
     const user: any = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
+    }
 
     const { status } = await req.json();
     if (!['Paid', 'Unpaid'].includes(status)) {
