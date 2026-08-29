@@ -24,7 +24,7 @@ export default function CreateInvoicePage() {
   const [loading, setLoading] = useState(true);
 
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
-  const [invoiceType, setInvoiceType] = useState<'GST' | 'NON-GST'>('GST');
+  const [invoiceType, setInvoiceType] = useState<'GST' | 'NON-GST'>('NON-GST');
   const [invoiceItems, setInvoiceItems] = useState<any[]>([]);
   const [gstRate, setGstRate] = useState(5);
   const [isGstIncluded, setIsGstIncluded] = useState(false);
@@ -84,7 +84,7 @@ export default function CreateInvoicePage() {
 
   const subtotal = calculateSubtotal();
   const discountedSubtotal = subtotal - discount;
-  
+
   const gstAmount = isGstIncluded
     ? discountedSubtotal - (discountedSubtotal / (1 + gstRate / 100))
     : (discountedSubtotal * gstRate) / 100;
@@ -285,7 +285,7 @@ export default function CreateInvoicePage() {
                     <div className="px-3 py-2 font-medium bg-muted/30 rounded-lg">₹{(item.price * item.quantity).toFixed(2)}</div>
                   </div>
                   <div className="md:col-span-1 w-full pb-1 flex justify-end">
-                    <button 
+                    <button
                       onClick={() => removeItem(index)}
                       className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                     >

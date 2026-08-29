@@ -44,6 +44,101 @@ export async function GET() {
       };
     });
 
+    // Calculate monthly data for the past 12 months
+    const now = new Date();
+    const monthlyData = [];
+
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const year = d.getFullYear();
+      const monthNum = d.getMonth();
+      const monthKey = `${year}-${String(monthNum + 1).padStart(2, '0')}`;
+      const monthLabel = format(d, 'MMM yyyy');
+      const shortMonth = format(d, 'MMM');
+
+      let monthTotalRevenue = 0;
+      let monthPaidRevenue = 0;
+      let monthUnpaidRevenue = 0;
+      let invoiceCount = 0;
+      let paidCount = 0;
+      let unpaidCount = 0;
+
+      invoices.forEach(inv => {
+        const invDate = new Date(inv.date || inv.createdAt || new Date());
+        if (invDate.getFullYear() === year && invDate.getMonth() === monthNum) {
+          const amt = inv.total || 0;
+          monthTotalRevenue += amt;
+          invoiceCount += 1;
+          if (inv.status === 'Paid') {
+            monthPaidRevenue += amt;
+            paidCount += 1;
+          } else {
+            monthUnpaidRevenue += amt;
+            unpaidCount += 1;
+          }
+        }
+      });
+
+      const collectionRate = monthTotalRevenue > 0 ? Math.round((monthPaidRevenue / monthTotalRevenue) * 100) : 0;
+
+      monthlyData.push({
+        monthKey,
+        month: monthLabel,
+        shortMonth,
+        year,
+        totalRevenue: monthTotalRevenue,
+        paidRevenue: monthPaidRevenue,
+        unpaidRevenue: monthUnpaidRevenue,
+        invoiceCount,
+        paidCount,
+        unpaidCount,
+        collectionRate,
+      });
+    }
+
+    // Calculate Monthly Summary KPIs
+    const currentMonthData = monthlyData[monthlyData.length - 1];
+    const prevMonthData = monthlyData[monthlyData.length - 2] || { totalRevenue: 0 };
+    const growthPercentage = prevMonthData.totalRevenue > 0
+      ? Math.round(((currentMonthData.totalRevenue - prevMonthData.totalRevenue) / prevMonthData.totalRevenue) * 100)
+      : (currentMonthData.totalRevenue > 0 ? 100 : 0);
+
+    const activeMonths = monthlyData.filter(m => m.totalRevenue > 0);
+    const avgMonthlyRevenue = monthlyData.length > 0
+      ? Math.round(monthlyData.reduce((sum, m) => sum + m.totalRevenue, 0) / (activeMonths.length || 1))
+      : 0;
+
+    let bestMonth = monthlyData[0];
+    monthlyData.forEach(m => {
+      if (m.totalRevenue > (bestMonth?.totalRevenue || 0)) {
+        bestMonth = m;
+      }
+    });
+
+    const yearlyTotalRevenue = monthlyData.reduce((sum, m) => sum + m.totalRevenue, 0);
+    const yearlyPaidRevenue = monthlyData.reduce((sum, m) => sum + m.paidRevenue, 0);
+    const yearlyUnpaidRevenue = monthlyData.reduce((sum, m) => sum + m.unpaidRevenue, 0);
+    const yearlyCollectionRate = yearlyTotalRevenue > 0
+      ? Math.round((yearlyPaidRevenue / yearlyTotalRevenue) * 100)
+      : 0;
+
+    const monthlySummary = {
+      currentMonthRevenue: currentMonthData.totalRevenue,
+      currentMonthPaid: currentMonthData.paidRevenue,
+      currentMonthUnpaid: currentMonthData.unpaidRevenue,
+      currentMonthInvoices: currentMonthData.invoiceCount,
+      growthPercentage,
+      avgMonthlyRevenue,
+      bestMonth: {
+        month: bestMonth?.month || 'N/A',
+        revenue: bestMonth?.totalRevenue || 0,
+      },
+      yearlyTotalRevenue,
+      yearlyPaidRevenue,
+      yearlyUnpaidRevenue,
+      yearlyCollectionRate,
+    };
+
     const recentInvoices = await Invoice.find({ userId: user.id })
       .populate('customerId')
       .sort({ createdAt: -1 })
@@ -57,6 +152,8 @@ export async function GET() {
       paidRevenue,
       unpaidRevenue,
       chartData,
+      monthlyData,
+      monthlySummary,
       recentInvoices
     });
   } catch (error: any) {
