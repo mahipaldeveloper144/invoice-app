@@ -378,6 +378,13 @@ export default function ViewInvoicePage() {
                 <p className="text-[8px] leading-tight">
                   • Subject to Gujarat jurisdiction.
                 </p>
+                {/* <p className="text-[8px] leading-tight">
+                  • Payments not received within <b className='text-red-500 font-bold'>3 days</b> of the due date will be subject to an interest charge of <b className='text-red-500 font-bold'>18% per annum</b> on the outstanding amount.
+                </p>
+
+                <p className="text-[8px] leading-tight">
+                  • If any payment remains outstanding for more than <b className='text-red-500 font-bold'>10 days</b> after the due date, all subsequent orders will be accepted on an <b className='text-red-500 font-bold'>ADVANCE PAYMENT ONLY</b> basis until all outstanding dues are cleared.
+                </p> */}
               </div>
             </div>
 
@@ -406,6 +413,21 @@ export default function ViewInvoicePage() {
               </div>
             </div>
           </div>
+
+          {invoice.status === 'Unpaid' && (
+            <div className="pt-8">
+              <div className='p-2 border border-gray-400 rounded-md shadow-lg'>
+                <p className="font-bold mb-1 text-[10px] ">Note:</p>
+                <p className="text-[10px] leading-tight">
+                  • Payments not received within <b className='text-red-500 font-bold'>3 days</b> of the due date will be subject to an interest charge of <b className='text-red-500 font-bold'>18% per annum</b> on the outstanding amount.
+                </p>
+
+                <p className="text-[10px] leading-tight">
+                  • If any payment remains outstanding for more than <b className='text-red-500 font-bold'>10 days</b> after the due date, all subsequent orders will be accepted on an <b className='text-red-500 font-bold'>ADVANCE PAYMENT ONLY</b> basis until all outstanding dues are cleared.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -432,5 +454,6 @@ export default function ViewInvoicePage() {
         }
       `}</style>
     </div>
+
   );
 }
